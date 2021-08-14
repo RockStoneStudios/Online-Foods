@@ -3,11 +3,12 @@ const app = express();
 const {AdminRouter,VandorRouter} = require('./routes/index');
 const mongoose = require('mongoose');
 const DB = require('./config/index');
-
+const path = require('path');
 //Middlewares
 
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
+app.use('/images', express.static(path.join(__dirname,'images')));
 app.use('/admin',AdminRouter);
 app.use('/vandor',VandorRouter);
 

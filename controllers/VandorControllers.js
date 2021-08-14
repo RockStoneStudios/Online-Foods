@@ -68,6 +68,21 @@ const updateVandorService = async(req,res)=>{
      }
 }
 
+const updateVandorCoverImage = async(req,res)=>{
+    const user = req.user;
+    if(user) {
+        const vandor = await findVandor(user._id);
+         if(vandor){
+             const files = req.files;
+             const images = files.map(file => file.filename);
+             vandor.coverImages.push(...images);
+             const result = await vandor.save();
+             res.json(result);
+         }
+
+    }
+}
+
 const addFood = async(req,res)=>{
   const user = req.user;
    if(user) {
@@ -76,13 +91,17 @@ const addFood = async(req,res)=>{
        const vandor = await findVandor(user._id);
        console.log(vandor);
         if(vandor){
+
+              const files = req.files;
+              console.log(files);
+               const images = files.map(file => file.filename);
                 const createFood = await Food.food.create({
                 vandorId : user._id,
                 name : name,
                 description :description,
                 category : category,
                 foodType : foodType,
-                images : ["mock.jpg"],
+                images : images,
                 readyTime : readyTime,
                 price : price,
                 rating : 0
@@ -113,5 +132,6 @@ module.exports = {
     updateVandorProfile,
     updateVandorService,
     addFood,
-    getFoods
+    getFoods,
+    updateVandorCoverImage
 }
