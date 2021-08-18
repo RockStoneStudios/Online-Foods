@@ -1,4 +1,7 @@
 const encryptPassword = require('./encryptPassword');
+const notificaciones = require('./Notificaciones');
 
-
-module.exports = encryptPassword;
+module.exports = {
+    encryptPassword,
+    notificaciones
+}
