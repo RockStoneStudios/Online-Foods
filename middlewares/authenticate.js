@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const TOKEN_SECRET = require('../config/index');
+
 const validateSignature = async (req,res,next)=>{
     const signature = req.get('Authorization');
       if(signature) {

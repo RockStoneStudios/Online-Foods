@@ -12,7 +12,7 @@ const  GenerateExpiry = ()=>{
 
 const onRequestOTP = async(otp , toPhoneNumber) =>{
      const accountSid = "AC2d7cf0d626f910a85739e6794ca704c6";
-     const authToken = "a3df3a471a6314f0af5ea2a3e5b736be";
+     const authToken = "9c1ec79994b5cfd28b485689e61a040b";
      const client = require('twilio')(accountSid,authToken);
    
      const response = await client.messages.create({
