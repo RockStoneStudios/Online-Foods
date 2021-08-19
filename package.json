@@ -1,6 +1,9 @@
 {
   "name": "microservicios-nodejs",
   "version": "1.0.0",
+  "engines": {
+    "node": "14.15.4"
+    },
   "description": "Creando Microservicios ",
   "main": "index.js",
   "scripts": {
