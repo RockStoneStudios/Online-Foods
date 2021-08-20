@@ -23,6 +23,14 @@ router.get('/profile',authenticated,Customer.GetCustomerProfile);
 /*---------------------Edit Profile--------------------------------- */
 router.patch('/profile',authenticated, Customer.EditCustomerProfile);
 
+/*-------------------Cart------------------ */
 
+/*--------------------Payment----------------*/
+
+/*-----------------------Order---------------*/
+
+router.post('/create-order',authenticated,Customer.CreateOrder);
+router.get('/orders',authenticated,Customer.GetOrders);
+router.get('/order/:id',authenticated,Customer.GetOrderById);
 
 module.exports = router;

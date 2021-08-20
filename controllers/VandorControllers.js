@@ -1,6 +1,8 @@
 const {findVandor} = require('./AdminControllers');
 const {passwordCompare,generateSignature} = require('../utility/encryptPassword');
-const Food = require('../models/index')
+const Food = require('../models/index');
+
+
 const login = async(req,res)=>{
     const{ email, password} = req.body;
 

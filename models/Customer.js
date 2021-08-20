@@ -48,6 +48,12 @@ const customerSchema  = new Schema({
       lng : {
           type : Number
       },
+       orders :[
+           {
+               type : Schema.Types.ObjectId,
+               ref : 'order'
+           }
+       ]
     },{
         toJSON : {
             transform(doc,ret){

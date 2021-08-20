@@ -5,6 +5,8 @@ const {GenerateOtp,GenerateExpiry,onRequestOTP} = require('../utility/Notificaci
 const {generateSignature} = require('../utility/encryptPassword');
 const Customer = require('../models/Customer');
 const {passwordCompare} = require('../utility/encryptPassword');
+const Food = require('../models/Food');
+const Order = require('../models/Order');
 
 const CustomerSignUp = async(req,res)=>{
     const {email,phone,password} = req.body;
@@ -20,8 +22,8 @@ const CustomerSignUp = async(req,res)=>{
        const otp= await  GenerateOtp();
        const expiry = await GenerateExpiry();
         
-        const existingCustomer = await Customer.findOne({email : email});
-        if(existingCustomer) return res.status(400).json({message : "An User with the provide email Id!!"});
+        // const existingCustomer = await Customer.findOne({email : email});
+        // if(existingCustomer) return res.status(400).json({message : "An User with the provide email Id!!"});
 
 
       const newCustomer = {
@@ -36,7 +38,8 @@ const CustomerSignUp = async(req,res)=>{
           address : '',
           verified : false,
           lat : 0,
-          lng : 0
+          lng : 0,
+          orders : []
            
       }
        console.log(newCustomer);
@@ -143,6 +146,75 @@ const GetCustomerProfile = async(req,res)=>{
 }
 
 
+const CreateOrder = async(req,res)=>{
+    const customer = req.user;
+    if(customer){
+        const orderId = Math.floor(Math.random()*89999 +1000);
+        const profile = await Customer.findById(customer._id);
+        const cart = [_id , unit] = req.body;
+        let cartItems = Array();
+
+        let metAmount = 0.0;
+
+        const foods = await Food.find().where('_id').in(cart.map(item=> item._id)).exec();
+
+        foods.map(food=>{
+            cart.map(({_id, unit})=>{
+                if(food._id == _id){
+                    metAmount+=(food.price*unit);
+                    cartItems.push({food,unit});
+                }
+            })
+        });
+
+        if(cartItems){
+            const currentOrder = await Order.create({
+                orderId : orderId,
+                items : cartItems,
+                totalAmount : metAmount,
+                orderDate : new Date(),
+                paidThrough : 'COD',
+                paymentResponse : '',
+                orderStatus : 'Waiting'
+            });
+
+            if(currentOrder){
+                profile.orders.push(currentOrder);
+                 await profile.save();
+                return res.status(200).json(currentOrder);
+            }
+        }
+  
+    }
+    res.status(400).json({message : "Error with Create Order"});
+ 
+}
+
+
+const GetOrders = async(req,res)=>{
+   const customer = req.user;
+   if(customer){
+       const profile = await Customer.findById(customer._id).populate('orders');
+       if(profile) return res.status(200).json(profile.orders);
+
+   }
+   res.status(400).json({message : "Error with Orders"});
+
+}
+
+
+
+const GetOrderById = async(req,res)=>{
+     const orderId =   req.params.id;
+     console.log(orderId);
+     if(orderId) {
+         const order = await Order.findById(orderId).populate('items.food');
+         res.status(200).json(order);
+     }
+      return res.status(400).json({message : "Id invalid"});
+}
+
+
 const EditCustomerProfile = async(req,res)=>{
     const customer = req.user;
 
@@ -170,5 +242,8 @@ module.exports = {
     CustomerVerify,
     GetCustomerProfile,
     RequestOtp,
-    EditCustomerProfile
+    EditCustomerProfile,
+    CreateOrder,
+    GetOrders,
+    GetOrderById
 }
