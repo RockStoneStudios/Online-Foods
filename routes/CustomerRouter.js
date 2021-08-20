@@ -24,7 +24,9 @@ router.get('/profile',authenticated,Customer.GetCustomerProfile);
 router.patch('/profile',authenticated, Customer.EditCustomerProfile);
 
 /*-------------------Cart------------------ */
-
+router.post('/cart',authenticated,Customer.AddtoCart);
+router.get('/cart',authenticated,Customer.GetCart);
+router.delete('/cart',authenticated,Customer.DeleteCart);
 /*--------------------Payment----------------*/
 
 /*-----------------------Order---------------*/

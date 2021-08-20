@@ -3,6 +3,7 @@ const {model,Schema} = require('mongoose');
 
 const OrderSchema = new Schema({
     orderId :{type : String, required : true},
+    vandorId : {type : String, required : true},
     items : [
         {
             food :{ type : Schema.Types.ObjectId , ref : "food", required : true},
@@ -13,7 +14,12 @@ const OrderSchema = new Schema({
     orderDate : {type : Date},
     paidThrough : {type : String},
     paymentResponse : {type : String},
-    orderStatus : {type : String}
+    orderStatus : {type : String},
+    remarks :{type : String},
+    deliveryId : {type : String},
+    appliedOffers : {type : Boolean},
+    offerId : {type : String},
+    readyTime : {type : Number} // max 60 minutes
 },{
     toJSON : {
         transform(doc,ret){

@@ -1,7 +1,7 @@
 const {findVandor} = require('./AdminControllers');
 const {passwordCompare,generateSignature} = require('../utility/encryptPassword');
 const Food = require('../models/index');
-
+const Order = require('../models/Order');
 
 const login = async(req,res)=>{
     const{ email, password} = req.body;
@@ -128,6 +128,48 @@ const getFoods = async(req,res)=>{
     }
 }
 
+const GetCurrentOrders = async(req,res)=>{
+   const user = req.user;
+   if(user){
+        const orders = await Order.find({vandorId : user._id}).populate('items.food');
+        if(orders){
+            return res.status(200).json(orders);
+        }
+    }
+   return res.status(400).json({message : "Order not found"});
+}
+
+const ProcessOrder = async(req,res)=>{
+   const orderId = req.params.id;
+   const {status,remarks, time } = req.body;
+   if(orderId){
+       const order = await Order.findById(orderId).populate('food');
+       console.log(order);
+       order.orderStatus = status;
+       order.remarks = remarks;
+       if(time){
+           order.readyTime = time;
+       }
+
+       const orderResult = await order.save();
+       if(orderResult){
+           return res.status(200).json(orderResult);
+       }
+   }
+   return res.status(400).json({message : "Unable to Process Order"});
+}
+
+const GetOrderDetail = async(req,res)=>{
+    const orderId = req.params.id;
+    if(orderId){
+         const order = await Order.findById(orderId).populate('items.food');
+         if(order){
+             return res.status(200).json(order);
+         }
+     }
+    return res.status(400).json({message : "Order not found"});
+}
+
 module.exports = {
     login,
     getVandorProfile,
@@ -135,5 +177,8 @@ module.exports = {
     updateVandorService,
     addFood,
     getFoods,
-    updateVandorCoverImage
+    updateVandorCoverImage,
+    GetCurrentOrders,
+    ProcessOrder,
+    GetOrderDetail
 }

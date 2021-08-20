@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const {login,getVandorProfile,updateVandorProfile,updateVandorService,addFood,getFoods,updateVandorCoverImage} = require('../controllers/VandorControllers');
+const {login,getVandorProfile,updateVandorProfile,updateVandorService,addFood,getFoods,updateVandorCoverImage,GetCurrentOrders,GetOrderDetail,ProcessOrder} = require('../controllers/VandorControllers');
 const authenticate = require('../middlewares/authenticate');
 
 const multer = require('multer');
@@ -29,6 +29,14 @@ router.get('/foods',authenticate,getFoods);
 router.get('/',(req,res)=>{
      res.json('Hello Vandor');
 });
+
+/*---------------Orders------------- */
+
+router.get('/orders',authenticate,GetCurrentOrders);
+router.put('/order/:id/process',authenticate,ProcessOrder);
+router.get('/order/:id',authenticate,GetOrderDetail);
+
+
 
 
 module.exports = router;

@@ -155,12 +155,13 @@ const CreateOrder = async(req,res)=>{
         let cartItems = Array();
 
         let metAmount = 0.0;
-
+        let vandorId;
         const foods = await Food.find().where('_id').in(cart.map(item=> item._id)).exec();
 
         foods.map(food=>{
             cart.map(({_id, unit})=>{
                 if(food._id == _id){
+                    vandorId = food.vandorId;
                     metAmount+=(food.price*unit);
                     cartItems.push({food,unit});
                 }
@@ -170,19 +171,25 @@ const CreateOrder = async(req,res)=>{
         if(cartItems){
             const currentOrder = await Order.create({
                 orderId : orderId,
+                vandorId : vandorId,
                 items : cartItems,
                 totalAmount : metAmount,
                 orderDate : new Date(),
                 paidThrough : 'COD',
                 paymentResponse : '',
-                orderStatus : 'Waiting'
+                orderStatus : 'Waiting',
+                remarks : '',
+                deliveryId : '',
+                appliedOffers : false,
+                offerId : null,
+                readyTime : 45,
             });
 
-            if(currentOrder){
+                profile.cart = [];
                 profile.orders.push(currentOrder);
                  await profile.save();
                 return res.status(200).json(currentOrder);
-            }
+            
         }
   
     }
@@ -236,6 +243,68 @@ const EditCustomerProfile = async(req,res)=>{
        }
 }
 
+ const AddtoCart = async(req,res)=>{
+     const customer = req.user;
+     if(customer){
+        const profile = await Customer.findById(customer._id).populate('cart.food');
+        let cartItems = Array();
+        const {_id, unit} = req.body;
+        const food = await Food.findById(_id);
+         if(food){
+             if(profile){
+                 // Chek for cart items
+                 cartItems = profile.cart;
+                 if(cartItems.length>0){
+                     // Check and Update unit
+                     let existFoodItem = cartItems.filter((item)=> item.food._id.toString()=== _id);
+                      if(existFoodItem.length>0){
+                          const index = cartItems.indexOf(existFoodItem[0]);
+                          if(unit>0){
+                              cartItems[index] = {food,unit}
+                          } else {
+                              cartItems.splice(index,1);
+                          }
+                      } else{
+                          cartItems.push({food,unit});
+                      }
+                 } else {
+                     //add new item to cart
+                     cartItems.push({food,unit})
+                 }
+                 if(cartItems){
+                     profile.cart = cartItems;
+                     const cartResult = await profile.save();
+                     return res.status(200).json(cartResult.cart);
+                 }
+             }
+         }
+     }
+     res.status(400).json({message : "Unable to create Cart!!"})
+ }
+
+ const GetCart = async(req,res)=>{
+    const customer = req.user;
+    if(customer){
+        const profile = await Customer.findById(customer._id).populate('cart.food');
+        if(profile) return res.status(200).json(profile.cart);
+    }
+    res.status(400).json({message : "cart is empty"});
+ }
+
+ const DeleteCart = async(req,res)=>{
+    const customer = req.user;
+    if(customer){
+        const profile = await Customer.findById(customer._id).populate('cart.food');
+        if(profile) {
+            profile.cart = [];
+            const cartResult = await profile.save();
+            return res.status(200).json(cartResult);
+        }
+      
+    }
+    res.status(400).json({message : "cart is already empty"});
+ }
+
 module.exports = {
     CustomerSignUp,
     CustomerLogin,
@@ -245,5 +314,8 @@ module.exports = {
     EditCustomerProfile,
     CreateOrder,
     GetOrders,
-    GetOrderById
+    GetOrderById,
+    AddtoCart,
+    GetCart,
+    DeleteCart
 }

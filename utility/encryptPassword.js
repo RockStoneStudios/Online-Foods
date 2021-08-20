@@ -14,7 +14,7 @@ const passwordCompare = async(password,passwordSave)=> {
 }
 
 const generateSignature = (payload) =>{
-   return jwt.sign(payload,TOKEN_SECRET.TOKEN_SECRET,{expiresIn :'1d'});
+   return jwt.sign(payload,TOKEN_SECRET.TOKEN_SECRET,{expiresIn :'365d'});
 }
 
 
